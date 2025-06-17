@@ -13,21 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Catagory',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('desc', models.TextField(blank=True, null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Ombor',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Sale',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -45,8 +30,6 @@ class Migration(migrations.Migration):
                 ('s_price', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('stock', models.IntegerField(default=0)),
                 ('s_count', models.IntegerField(default=0)),
-                ('catagory', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='market.catagory')),
-                ('ombor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='market.ombor')),
             ],
         ),
         migrations.CreateModel(

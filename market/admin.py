@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Catagory, Ombor, Sale, SaleItem
+from .models import Product, Ombor, Sale, SaleItem
 from import_export.admin import ImportExportModelAdmin
 
 # Inlinelar
@@ -11,25 +11,13 @@ class SaleItemInline(admin.TabularInline):
     model = SaleItem
     extra = 0
 
-# Kategoriya admini
-@admin.register(Catagory)
-class CatagoryAdmin(ImportExportModelAdmin):
-    inlines = [ProductInline]
-    list_display = ('name', 'desc')
-    search_fields = ('name',)
-
-# Ombor admini
-@admin.register(Ombor)
-class OmborAdmin(ImportExportModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
 
 # Mahsulot admini
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
-    list_display = ('desc', 'catagory', 's_price', 'barcode', 'ombor', 'stock', 'is_active', 'start_date', 'end_date')
+    list_display = ('desc',  's_price', 'barcode',  'stock', 'is_active', 'start_date', 'end_date')
     search_fields = ('desc', 'barcode')
-    list_filter = ('catagory', 'ombor', 'is_active')
+    list_filter = ( 'is_active')
     list_editable = ('is_active', 'stock')
     ordering = ('-id',)
 

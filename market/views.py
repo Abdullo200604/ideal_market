@@ -17,9 +17,7 @@ from .forms import ProductForm, OmborForm
 import pandas as pd
 from django.db.models.functions import ExtractHour
 
-#Models
-from .models import Ombor
-from .models import Catagory
+
 from .models import Product
 
 from django.contrib.auth.forms import AdminPasswordChangeForm
@@ -311,7 +309,6 @@ def sale_detail(request, pk):
 def statistics(request):
     category_stats = (
         SaleItem.objects
-        .values('product__catagory__name')
         .annotate(total_sales=Sum('quantity'), total_sum=Sum('price'))
         .order_by('-total_sales')
     )
@@ -439,7 +436,6 @@ def admin_management(request):
 @user_passes_test(lambda u: u.is_superuser)
 def admin_products(request):
     products = Product.objects.all().order_by('-id')
-    categories = Catagory.objects.all()
     query = request.GET.get('q', '')
     cat_id = request.GET.get('cat')
     show_all = request.GET.get('show_all', '')
@@ -449,12 +445,10 @@ def admin_products(request):
         products = products.filter(is_active=True)
     if query:
         products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
-    if cat_id:
-        products = products.filter(catagory_id=cat_id)
+
 
     context = {
         'products': products,
-        'categories': categories
     }
     return render(request, 'market/admin_products.html', context)
 
@@ -542,91 +536,6 @@ def admin_product_bulk_delete(request):
     return redirect('admin_products')
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_categories(request):
-    categories = Catagory.objects.all()
-    return render(request, 'market/admin_categories.html', {'categories': categories})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_category_add(request):
-    if request.method == 'POST':
-        form = CatagoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_categories')
-    else:
-        form = CatagoryForm()
-    return render(request, 'market/admin_category_form.html', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_category_edit(request, pk):
-    category = get_object_or_404(Catagory, pk=pk)
-    if request.method == 'POST':
-        form = CatagoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_categories')
-    else:
-        form = CatagoryForm(instance=category)
-    return render(request, 'market/admin_category_form.html', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_category_delete(request, pk):
-    category = get_object_or_404(Catagory, pk=pk)
-    if request.method == 'POST':
-        category.delete()
-        return redirect('admin_categories')
-    return render(request, 'market/admin_category_confirm_delete.html', {'category': category})
-
-#Ombor
-class OmborForm(forms.ModelForm):
-    class Meta:
-        model = Ombor
-        fields = ['name']
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombors(request):
-    ombors = Ombor.objects.all()
-    return render(request, 'market/admin_ombors.html', {'ombors': ombors})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_add(request):
-    if request.method == 'POST':
-        form = OmborForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm()
-    return render(request, 'market/admin_ombor_form.html', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_edit(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        form = OmborForm(request.POST, instance=ombor)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm(instance=ombor)
-    return render(request, '', {'form': form})
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin_ombor_delete(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        ombor.delete()
-        return redirect('admin_ombors')
-    return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})
 
 #Users
 @user_passes_test(lambda u: u.is_superuser)
