@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Ombor
+from .models import Product
 
 from django.utils import timezone
 from datetime import timedelta
@@ -15,7 +15,3 @@ class ProductForm(forms.ModelForm):
             self.fields['start_date'].initial = timezone.now()
             self.fields['end_date'].initial = timezone.now() + timedelta(days=30)
 
-class OmborForm(forms.ModelForm):
-    class Meta:
-        model = Ombor
-        fields = ['name']
