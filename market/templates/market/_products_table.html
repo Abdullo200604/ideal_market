@@ -4,7 +4,6 @@
             <tr>
                 <th>Nom</th>
                 <th>Barcode</th>
-                <th>Ombor</th>
                 <th>Narxi</th>
                 <th>Savatga qo‘shish</th>
             </tr>
@@ -14,7 +13,6 @@
             <tr>
                 <td>{{ product.desc }}</td>
                 <td>{{ product.barcode }}</td>
-                <td>{{ product.ombor.name }}</td>
                 <td>{{ product.s_price }}</td>
                 <td>
                     <form method="post" action="{% url 'cart_add' product.id %}" class="cart-add-form d-flex align-items-center gap-1">

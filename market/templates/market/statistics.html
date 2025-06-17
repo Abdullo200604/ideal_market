@@ -24,6 +24,19 @@
             </div>
             <div class="col-md-6 mb-4">
                 <div class="card h-100">
+                    <div class="card-header bg-info text-white">Mahsulot qoldiqlari</div>
+                    <div class="card-body p-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr><th>Mahsulot</th><th>Mavjud soni</th></tr>
+                            {% for p in product_stock %}
+                            <tr><td>{{ p.desc }}</td><td>{{ p.stock }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
                     <div class="card-header bg-success text-white">Top kassirlar</div>
                     <div class="card-body p-2">
                         <table class="table table-sm table-bordered mb-0">

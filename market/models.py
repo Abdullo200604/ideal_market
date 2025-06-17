@@ -2,22 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Catagory(models.Model):
-    name = models.CharField(max_length=100)
-    desc = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-class Ombor(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
 class Product(models.Model):
-    catagory = models.ForeignKey(Catagory, on_delete=models.CASCADE, related_name='products')
-    ombor = models.ForeignKey(Ombor, on_delete=models.CASCADE, related_name='products')
     barcode = models.CharField(max_length=100, unique=True)
     desc = models.TextField(blank=True, null=True)
     r_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Olish narxi")
