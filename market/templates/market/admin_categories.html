@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Kategoriyalar{% endblock %}
+{% block content %}
+<h2 class="mb-3">Kategoriyalar</h2>
+<a href="{% url 'admin_category_add' %}" class="btn btn-success btn-sm mb-2 w-100 w-md-auto">+ Qo‘shish</a>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for category in categories %}
+            <tr>
+                <td>{{ category.id }}</td>
+                <td>{{ category.name }}</td>
+                <td class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'admin_category_edit' category.id %}" class="btn btn-sm btn-outline-primary">Tahrirlash</a>
+                    <a href="{% url 'admin_category_delete' category.id %}" class="btn btn-sm btn-outline-danger">O‘chirish</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="3" class="text-center">Kategoriyalar yo‘q.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'admin_management' %}" class="btn btn-secondary btn-sm mt-2">⬅️ Orqaga</a>
+{% endblock %}

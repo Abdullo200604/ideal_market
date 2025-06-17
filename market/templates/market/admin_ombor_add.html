@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Yangi ombor{% endblock %}
+{% block content %}
+<h2 class="mb-3">Yangi ombor qo‘shish</h2>
+<form method="post" class="card card-body main-card d-grid gap-2">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="d-grid gap-2 d-md-flex">
+        <button type="submit" class="btn btn-primary btn-sm">Saqlash</button>
+        <a href="{% url 'admin_ombors' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor qilish</a>
+    </div>
+</form>
+{% endblock %}

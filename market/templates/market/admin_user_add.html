@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Foydalanuvchi qo‘shish{% endblock %}
+{% block content %}
+<h2 class="mb-3">Yangi foydalanuvchi</h2>
+<form method="post" class="card card-body main-card d-grid gap-2">
+    {% csrf_token %}
+    <div class="row g-2">
+        <div class="col-12 col-md-6">
+            <label class="form-label">Login</label>
+            <input type="text" name="username" required class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Parol</label>
+            <input type="password" name="password" required class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Ism</label>
+            <input type="text" name="first_name" class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Familiya</label>
+            <input type="text" name="last_name" class="form-control">
+        </div>
+        <div class="col-12">
+            <label class="form-label">Roli</label>
+            <select name="role" class="form-select">
+                <option value="kassir">Kassir</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+    </div>
+    <div class="d-grid gap-2 d-md-flex mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">Qo‘shish</button>
+        <a href="{% url 'admin_users' %}" class="btn btn-secondary btn-sm ms-md-auto">Bekor</a>
+    </div>
+</form>
+{% if messages %}
+    {% for m in messages %}
+        <div class="text-danger mt-2">{{ m }}</div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

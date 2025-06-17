@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Foydalanuvchi tahrirlash{% endblock %}
+{% block content %}
+<h2 class="mb-3">Foydalanuvchini tahrirlash</h2>
+<form method="post" class="card card-body main-card d-grid gap-2">
+    {% csrf_token %}
+    <div class="row g-2">
+        <div class="col-12 col-md-6">
+            <label class="form-label">Login</label>
+            <input type="text" name="username" value="{{ user_obj.username }}" required class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Ism</label>
+            <input type="text" name="first_name" value="{{ user_obj.first_name }}" class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Familiya</label>
+            <input type="text" name="last_name" value="{{ user_obj.last_name }}" class="form-control">
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Roli</label>
+            <select name="role" class="form-select">
+                <option value="kassir" {% if user_obj.groups.first and user_obj.groups.first.name == 'Kassir' %}selected{% endif %}>Kassir</option>
+                <option value="admin" {% if user_obj.is_superuser %}selected{% endif %}>Admin</option>
+            </select>
+        </div>
+    </div>
+    <div class="d-grid gap-2 d-md-flex mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">Saqlash</button>
+        <a href="{% url 'admin_users' %}" class="btn btn-secondary btn-sm">Bekor</a>
+        <a href="{% url 'admin_user_change_password' user_obj.id %}" class="btn btn-warning btn-sm ms-md-auto">Parolni o‘zgartirish</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Mahsulotlar{% endblock %}
+{% block content %}
+<h2 class="mb-3">Mahsulotlar</h2>
+<form method="get" action="{% url 'admin_products' %}" class="row g-2 mb-3">
+    <div class="col-12 col-sm-auto flex-grow-1">
+        <input type="text" name="q" class="form-control" placeholder="Qidiruv" value="{{ request.GET.q|default_if_none:'' }}">
+    </div>
+    <div class="col-12 col-sm-auto">
+        <button class="btn btn-outline-primary w-100" type="submit">Qidirish</button>
+    </div>
+    <div class="col-12 col-sm-auto ms-sm-auto">
+        <a href="{% url 'admin_product_add' %}" class="btn btn-success w-100">+ Qo‘shish</a>
+    </div>
+</form>
+<form method="post" action="{% url 'admin_product_bulk_delete' %}" id="bulk-delete-form">
+    {% csrf_token %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Barcode</th>
+                    <th>Narxi</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr>
+                    <td><input type="checkbox" name="selected_products" value="{{ product.id }}"></td>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.desc }}</td>
+                    <td>{{ product.barcode }}</td>
+                    <td>{{ product.s_price }}</td>
+                    <td class="d-grid gap-2 d-md-flex">
+                        <a href="{% url 'admin_product_edit' product.id %}" class="btn btn-sm btn-outline-primary">Tahrirlash</a>
+                        <a href="{% url 'admin_product_delete' product.id %}" class="btn btn-sm btn-outline-danger">O‘chirish</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center">Mahsulotlar yo‘q.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="submit" class="btn btn-danger btn-sm mt-2">Tanlanganlarni o‘chirish</button>
+</form>
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a href="{% url 'management_product_export' %}" class="btn btn-outline-secondary btn-sm">Excelga eksport</a>
+    <form method="post" enctype="multipart/form-data" action="{% url 'management_product_import' %}" class="d-flex gap-2">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".json" class="form-control form-control-sm" required>
+        <button type="submit" class="btn btn-outline-primary btn-sm">JSON import</button>
+    </form>
+    <a href="{% url 'admin_management' %}" class="btn btn-secondary btn-sm ms-auto">⬅️ Orqaga</a>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.getElementById('select-all').addEventListener('change', function(){
+        document.querySelectorAll('input[name="selected_products"]').forEach(cb=>cb.checked=this.checked);
+    });
+</script>
+{% endblock %}

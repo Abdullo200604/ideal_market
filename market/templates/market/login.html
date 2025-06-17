@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Tizimga kirish{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <div class="card main-card">
+            <div class="card-body">
+                <h2 class="text-center mb-3">Tizimga kirish</h2>
+                <form method="post" class="d-grid gap-2">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Kirish</button>
+                </form>
+                {% if form.errors %}
+                    <p class="text-danger mt-2 text-center">Login yoki parol noto‘g‘ri!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
