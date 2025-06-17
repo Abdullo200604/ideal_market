@@ -11,14 +11,11 @@ from django.contrib import messages
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-
-from django import forms
-from .forms import ProductForm, OmborForm
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .forms import ProductForm
 import pandas as pd
 from django.db.models.functions import ExtractHour
-
-
-from .models import Product
 
 from django.contrib.auth.forms import AdminPasswordChangeForm
 
@@ -106,6 +103,48 @@ def kassa(request):
         'query': query,
     })
 
+def get_cart_items_and_total(request):
+    cart = request.session.get('cart', {})
+    items = []
+    total = 0
+    for pid, quantity in cart.items():
+        try:
+            product = Product.objects.get(id=pid)
+            item_total = product.s_price * quantity
+            items.append({
+                "product": product,
+                "quantity": quantity,
+                "item_total": item_total
+            })
+            total += item_total
+        except Product.DoesNotExist:
+            continue
+    return items, total
+
+@csrf_exempt
+def cart_add_by_barcode(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        barcode = data.get("barcode")
+        quantity = int(data.get("quantity", 1))
+        try:
+            product = Product.objects.get(barcode=barcode)
+            # Savatga qo‘shish logikasi
+            cart = request.session.get('cart', {})
+            cart[str(product.id)] = cart.get(str(product.id), 0) + quantity
+            request.session['cart'] = cart
+
+            # Savat itemlarini olish
+            cart_items, total = get_cart_items_and_total(request)
+            cart_html = render_to_string(
+                "market/_cart_partial.html",
+                {"cart_items": cart_items, "total": total},
+                request=request
+            )
+            return JsonResponse({"success": True, "cart_html": cart_html})
+        except Product.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Mahsulot topilmadi!"})
+    return JsonResponse({"success": False, "error": "Noto‘g‘ri so‘rov!"})
 
 @login_required
 def cart_add(request, product_id):
@@ -307,17 +346,13 @@ def sale_detail(request, pk):
 
 @user_passes_test(is_kassir_or_admin)
 def statistics(request):
-    category_stats = (
-        SaleItem.objects
-        .annotate(total_sales=Sum('quantity'), total_sum=Sum('price'))
-        .order_by('-total_sales')
-    )
     product_stats = (
         SaleItem.objects
         .values('product__desc')
         .annotate(total_sales=Sum('quantity'), total_sum=Sum('price'))
         .order_by('-total_sales')[:10]
     )
+    product_stock = Product.objects.values('desc', 'stock').order_by('desc')
     kassir_stats = (
         Sale.objects
         .values('created_by__username')
@@ -341,8 +376,8 @@ def statistics(request):
     expired_products = Product.objects.filter(end_date__lt=now)
 
     return render(request, 'market/statistics.html', {
-        'category_stats': category_stats,
         'product_stats': product_stats,
+        'product_stock': product_stock,
         'kassir_stats': kassir_stats,
         'date_stats': date_stats,
         'hour_stats': hour_stats,
@@ -437,7 +472,6 @@ def admin_management(request):
 def admin_products(request):
     products = Product.objects.all().order_by('-id')
     query = request.GET.get('q', '')
-    cat_id = request.GET.get('cat')
     show_all = request.GET.get('show_all', '')
 
     # Faqat faol mahsulotlarni ko'rsatish (superuser bo'lmasa yoki show_all bo'lmasa)
@@ -445,7 +479,6 @@ def admin_products(request):
         products = products.filter(is_active=True)
     if query:
         products = products.filter(Q(desc__icontains=query) | Q(barcode__icontains=query))
-
 
     context = {
         'products': products,
@@ -536,6 +569,8 @@ def admin_product_bulk_delete(request):
     return redirect('admin_products')
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 
 #Users
 @user_passes_test(lambda u: u.is_superuser)
@@ -651,47 +686,6 @@ def admin_sale_delete(request, sale_id):
     return render(request, 'market/admin_sale_confirm_delete.html', {'sale': sale})
 
 
-#ombor
-@login_required
-@user_passes_test(is_kassir_or_admin)
-def admin_ombors(request):
-    ombors = Ombor.objects.all()
-    return render(request, 'market/admin_ombors.html', {'ombors': ombors})
-
-@login_required
-@user_passes_test(is_kassir_or_admin)
-def admin_ombor_add(request):
-    if request.method == 'POST':
-        form = OmborForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm()
-    return render(request, 'market/admin_ombor_add.html', {'form': form})
-
-@login_required
-@user_passes_test(is_kassir_or_admin)
-def admin_ombor_edit(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        form = OmborForm(request.POST, instance=ombor)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_ombors')
-    else:
-        form = OmborForm(instance=ombor)
-    return render(request, 'market/admin_ombor_edit.html', {'form': form, 'ombor': ombor})
-
-@login_required
-@user_passes_test(is_kassir_or_admin)
-def admin_ombor_delete(request, pk):
-    ombor = get_object_or_404(Ombor, pk=pk)
-    if request.method == 'POST':
-        ombor.delete()
-        return redirect('admin_ombors')
-    return render(request, 'market/admin_ombor_confirm_delete.html', {'ombor': ombor})
-
 def management_product_import(request):
     if request.method == "POST":
         import pandas as pd
@@ -701,20 +695,9 @@ def management_product_import(request):
         except Exception as e:
             return HttpResponse("JSON faylni o‘qib bo‘lmadi: " + str(e))
         for _, row in df.iterrows():
-            # Kategoriya va Ombor nomi orqali id ni topamiz
-            from .models import Catagory, Ombor
-            try:
-                catagory_obj = Catagory.objects.get(name=row['catagory'])
-                ombor_obj = Ombor.objects.get(name=row['ombor'])
-            except Catagory.DoesNotExist:
-                return HttpResponse(f"Kategoriya topilmadi: {row['catagory']}")
-            except Ombor.DoesNotExist:
-                return HttpResponse(f"Ombor topilmadi: {row['ombor']}")
             Product.objects.update_or_create(
                 barcode=row['barcode'],
                 defaults={
-                    'catagory': catagory_obj,
-                    'ombor': ombor_obj,
                     'desc': row.get('desc', ''),
                     'r_price': row.get('r_price', 0),
                     's_price': row.get('s_price', 0),
@@ -732,7 +715,7 @@ def management_product_import(request):
 def management_product_export(request):
     import pandas as pd
     products = Product.objects.filter(is_active=True).values(
-        'id', 'catagory_id', 'ombor_id', 'barcode', 'desc', 'r_price', 's_price', 'stock', 'start_date', 'end_date'
+        'id', 'barcode', 'desc', 'r_price', 's_price', 'stock', 'start_date', 'end_date'
     )
     df = pd.DataFrame(list(products))
     response = HttpResponse(content_type='application/json')
@@ -741,30 +724,3 @@ def management_product_export(request):
     return response
 
 
-def management_category_import(request):
-    if request.method == "POST":
-        import pandas as pd
-        file = request.FILES['file']
-        try:
-            df = pd.read_json(file)
-        except Exception as e:
-            return HttpResponse("JSON faylni o‘qib bo‘lmadi: " + str(e))
-
-        for _, row in df.iterrows():
-            Catagory.objects.update_or_create(
-                name=row['name'],
-                defaults={
-                    'desc': row.get('desc', '')
-                }
-            )
-        return redirect('admin_categories')
-    return HttpResponse("Faqat POST so‘rov!", status=405)
-
-def management_category_export(request):
-    import pandas as pd
-    categories = Catagory.objects.all().values('id', 'name', 'desc')
-    df = pd.DataFrame(list(categories))
-    response = HttpResponse(content_type='application/json')
-    response['Content-Disposition'] = 'attachment; filename="categories_export.json"'
-    response.write(df.to_json(orient='records'))
-    return response

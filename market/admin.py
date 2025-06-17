@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Ombor, Sale, SaleItem
+from .models import Product, Sale, SaleItem
 from import_export.admin import ImportExportModelAdmin
 
 # Inlinelar
@@ -11,13 +11,12 @@ class SaleItemInline(admin.TabularInline):
     model = SaleItem
     extra = 0
 
-
 # Mahsulot admini
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
-    list_display = ('desc',  's_price', 'barcode',  'stock', 'is_active', 'start_date', 'end_date')
+    list_display = ('desc', 's_price', 'barcode', 'stock', 'is_active', 'start_date', 'end_date')
     search_fields = ('desc', 'barcode')
-    list_filter = ( 'is_active')
+    list_filter = ('is_active',)
     list_editable = ('is_active', 'stock')
     ordering = ('-id',)
 
@@ -34,7 +33,7 @@ class SaleAdmin(admin.ModelAdmin):
         return obj.total_sum
     total_sum_display.short_description = "Umumiy summa"
 
-# SaleItem uchun alohida admin (odatda ko‘rinmaydi, faqat inlineda)
+# SaleItem uchun alohida admin
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'sale', 'product', 'quantity', 'price')

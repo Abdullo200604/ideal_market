@@ -9,13 +9,13 @@ Admin panel va kassa interfeysi Bootstrap bilan 100% responsive, role-based acce
 
 | Mobil (Kassa) | Laptop (Admin) |
 | --- | --- |
-| ![mobil](screenshots/kassa-mobile.png) | ![desktop](screenshots/admin-products-desktop.png) |
+| ![mobil](screenshots/kassa-mobile.png) | ![desktop](screenshots/kassa-mobile.png) |
 
 ---
 
 ## ✨ Asosiy xususiyatlar
 
-- **Mahsulotlar, kategoriyalar va omborlarni boshqarish** (Admin CRUD)
+- **Mahsulotlarni boshqarish** (Admin CRUD)
 - **Kassir oynasi** (AJAX va Bootstrap asosida savat va to‘lov)
 - **Cheklar tarixi va sotuvlar statistikasi** (PDF/Excel eksport)
 - **Role-based access** (admin/kassir)
@@ -66,7 +66,7 @@ Admin panel va kassa interfeysi Bootstrap bilan 100% responsive, role-based acce
 
 ## 🧑‍💻 Rol va kirish (Access)
 
-- **Admin** — mahsulotlar, kategoriyalar, ombor, foydalanuvchilar, sotuvlar va statistikani boshqaradi.
+- **Admin** — mahsulotlar, foydalanuvchilar, sotuvlar va statistikani boshqaradi.
 - **Kassir** — faqat kassa, savat, chek va umumiy statistikani ko‘radi.
 
 ---

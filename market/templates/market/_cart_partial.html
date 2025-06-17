@@ -18,16 +18,19 @@
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.item_total }}</td>
                     <td>
+                        <!-- Qo‘shish (plus) -->
                         <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="add">
                             <button type="submit" class="btn btn-sm btn-success">+</button>
                         </form>
+                        <!-- Ayirish (minus) -->
                         <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="remove">
                             <button type="submit" class="btn btn-sm btn-warning">−</button>
                         </form>
+                        <!-- O‘chirish (delete) -->
                         <form method="post" action="{% url 'cart_remove' item.product.id %}" class="d-inline cart-remove-form">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-danger">O‘chirish</button>
@@ -35,7 +38,9 @@
                     </td>
                 </tr>
             {% empty %}
-                <tr><td colspan="4">Savat bo‘sh!</td></tr>
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Savat bo‘sh!</td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>

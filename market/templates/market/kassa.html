@@ -9,12 +9,14 @@
 </style>
 {% endblock %}
 {% block content %}
+
 <div class="card main-card">
     <div class="card-body">
         <h2 class="mb-3">Kassa oynasi</h2>
         <div class="row g-3">
             <div class="col-12 col-lg-6">
-                <input type="text" id="search-input" class="form-control mb-2" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off">
+                <!-- Faqat bitta input! Barcode yoki nom uchun -->
+                <input type="text" id="search-input" class="form-control mb-2" placeholder="Qidiruv (nom yoki barcode)" autocomplete="off" autofocus>
                 <div class="products-scroll-area sticky-table">
                     <div id="products-table">
                         {% include "market/_products_table.html" %}
@@ -34,12 +36,14 @@
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <script>
 $(function(){
+    // Mahsulotlar qidiruvi (nom/barcode)
     $('#search-input').on('input', function(){
         $.ajax({
             url: "{% url 'kassa' %}",
@@ -51,6 +55,42 @@ $(function(){
         });
     });
 
+    // Barcode kiritib Enter bosilganda savatga qo‘shish
+    $('#search-input').on('keydown', function(event){
+        if(event.key === "Enter"){
+            event.preventDefault();
+            let val = $(this).val().trim();
+            if(val){
+                if(/^\d+$/.test(val)){
+                    $.ajax({
+                        url: "{% url 'cart_add_by_barcode' %}",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({barcode: val, quantity: 1}),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        success: function(data){
+                            if(data.success){
+                                $('#cart-area').replaceWith(data.cart_html);
+                                $('#cart-message').html('<b class="text-success">Mahsulot savatga qo‘shildi!</b>');
+                            }else{
+                                $('#cart-message').html('<b class="text-danger">'+(data.error || 'Mahsulot topilmadi!')+'</b>');
+                            }
+                            $('#search-input').val('').focus();
+                        },
+                        error: function(){
+                            $('#cart-message').html('<b class="text-danger">Server xatolik yoki mahsulot topilmadi!</b>');
+                            $('#search-input').val('').focus();
+                        }
+                    });
+                }
+            }
+        }
+    });
+
+    // Savatga mahsulot +, -, O‘chirish va boshqa harakatlar uchun AJAX
     $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form, .update-cart', function(e){
         e.preventDefault();
         var $form = $(this);
@@ -70,17 +110,90 @@ $(function(){
             }
         });
     });
+});
+$(function(){
+    // Mahsulotlar qidiruvi (nom/barcode)
+    $('#search-input').on('input', function(){
+        $.ajax({
+            url: "{% url 'kassa' %}",
+            data: {q: this.value},
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            success: function(data){
+                $('#products-table').html(data.products_html);
+            }
+        });
+    });
 
-    $(document).on('input', '#cart-search', function(){
-        var value = $(this).val().toLowerCase();
-        $('.cart-item-row').filter(function(){
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    // Barcode kiritib Enter bosilganda savatga qo‘shish
+    $('#search-input').on('keydown', function(event){
+        if(event.key === "Enter"){
+            event.preventDefault();
+            let val = $(this).val().trim();
+            if(val){
+                if(/^\d+$/.test(val)){
+                    $.ajax({
+                        url: "{% url 'cart_add_by_barcode' %}",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({barcode: val, quantity: 1}),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        success: function(data){
+                            if(data.success){
+                                $('#cart-area').replaceWith(data.cart_html);
+                                $('#cart-message').html('<b class="text-success">Mahsulot savatga qo‘shildi!</b>');
+                            }else{
+                                $('#cart-message').html('<b class="text-danger">'+(data.error || 'Mahsulot topilmadi!')+'</b>');
+                            }
+                            $('#search-input').val('').focus();
+                        },
+                        error: function(){
+                            $('#cart-message').html('<b class="text-danger">Server xatolik yoki mahsulot topilmadi!</b>');
+                            $('#search-input').val('').focus();
+                        }
+                    });
+                }
+            }
+        }
+    });
+
+    // Savatga mahsulot +, -, O‘chirish va boshqa harakatlar uchun AJAX
+    $(document).on('submit', '.cart-add-form, .cart-remove-form, #cart-clear-form, #cart-checkout-form, .update-cart', function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+            type: $form.attr('method'),
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            headers: {'X-CSRFToken': $form.find('input[name="csrfmiddlewaretoken"]').val()},
+            success: function(data){
+                $('#cart-area').replaceWith(data.cart_html);
+                $('#cart-message').html(data.message ? '<b class="text-success">'+data.message+'</b>' : '');
+            },
+            error: function(xhr){
+                let msg = 'Xatolik yuz berdi!';
+                if(xhr.responseJSON && xhr.responseJSON.message){ msg = xhr.responseJSON.message; }
+                $('#cart-message').html('<b class="text-danger">'+msg+'</b>');
+            }
         });
     });
 });
+
 function generatePDF(){
     var items = [['Mahsulot','Miqdori','Jami']{% for item in cart_items %},['{{ item.product.desc|escapejs }}','{{ item.quantity }}','{{ item.item_total }}']{% endfor %}];
-    var docDefinition = {content:[{text:'Chek',style:'header',alignment:'center'},{table:{headerRows:1,body:items}},{text:'Umumiy summa: {{ total }}',style:'total',margin:[0,10,0,0]}],styles:{header:{fontSize:16,bold:true,margin:[0,0,0,10]},total:{fontSize:14,bold:true}}};
+    var docDefinition = {
+        content: [
+            {text:'Chek',style:'header',alignment:'center'},
+            {table:{headerRows:1,body:items}},
+            {text:'Umumiy summa: {{ total }}',style:'total',margin:[0,10,0,0]}
+        ],
+        styles:{
+            header:{fontSize:16,bold:true,margin:[0,0,0,10]},
+            total:{fontSize:14,bold:true}
+        }
+    };
     pdfMake.createPdf(docDefinition).download('check.pdf');
 }
 </script>

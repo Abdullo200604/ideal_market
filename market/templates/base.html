@@ -11,34 +11,30 @@
 </head>
 <body>
     {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'dashboard' %}">Ideal Market</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Menyuni ochish">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'admin_products' %}">Mahsulotlar</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'cart' %}">Savat</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">Chiqish</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">Ideal Market</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Menyuni ochish">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_products' %}">Mahsulotlar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Chiqish</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
     {% endblock %}
 
     <div class="container my-4">
         {% block content %}
-        <!-- Sahifa contenti shu yerga chiqadi -->
+        <!-- Sahifa kontenti shu yerda paydo bo‘ladi -->
         {% endblock %}
     </div>
 

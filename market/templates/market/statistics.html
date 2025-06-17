@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Statistika{% endblock %}
+
 {% block content %}
 <div class="card main-card">
     <div class="card-body">
@@ -8,6 +9,27 @@
             <a href="{% url 'statistics_export_excel' %}" class="btn btn-success btn-sm">Excelga yuklab olish</a>
             <a href="{% url 'statistics_export_pdf' %}" class="btn btn-danger btn-sm">PDFga yuklab olish</a>
         </div>
+
+        <!-- Mahsulotlar qoldig'i (Siz so'ragan oddiy jadval) -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">Mahsulotlar qoldiqlari (oddiy jadval)</div>
+            <div class="card-body p-2">
+                <table class="table table-sm table-bordered mb-0">
+                    <tr>
+                        <th>Mahsulot nomi</th>
+                        <th>Qolgan soni</th>
+                    </tr>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <!-- /Mahsulotlar qoldig'i -->
+
         <div class="row">
             <div class="col-md-6 mb-4">
                 <div class="card h-100">
@@ -17,6 +39,19 @@
                             <tr><th>Mahsulot</th><th>Soni</th></tr>
                             {% for p in product_stats %}
                             <tr><td>{{ p.product__desc }}</td><td>{{ p.total_sales }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">Mahsulot qoldiqlari</div>
+                    <div class="card-body p-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <tr><th>Mahsulot</th><th>Mavjud soni</th></tr>
+                            {% for p in product_stock %}
+                            <tr><td>{{ p.desc }}</td><td>{{ p.stock }}</td></tr>
                             {% endfor %}
                         </table>
                     </div>

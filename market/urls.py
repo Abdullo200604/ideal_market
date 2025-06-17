@@ -8,6 +8,8 @@ urlpatterns = [
     path('kassa/', views.kassa, name='kassa'),
 
     # 🛒 Savat funksiyalari
+    # path('cart/', views.cart, name='cart'),
+    path('cart/add_by_barcode/', views.cart_add_by_barcode, name='cart_add_by_barcode'),
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
     path('cart/clear/', views.cart_clear, name='cart_clear'),
@@ -36,19 +38,6 @@ urlpatterns = [
     path('management/products/import/', views.management_product_import, name='management_product_import'),
     path('management/products/export/', views.management_product_export, name='management_product_export'),
 
-    # 🗂 Kategoriyalar boshqaruvi
-    path('management/categories/', views.admin_categories, name='admin_categories'),
-    path('management/categories/add/', views.admin_category_add, name='admin_category_add'),
-    path('management/categories/<int:pk>/edit/', views.admin_category_edit, name='admin_category_edit'),
-    path('management/categories/<int:pk>/delete/', views.admin_category_delete, name='admin_category_delete'),
-    path('management/categories/import/', views.management_category_import, name='management_category_import'),
-    path('management/categories/export/', views.management_category_export, name='management_category_export'),
-
-    # 🏬 Omborlar boshqaruvi
-    path('management/ombors/', views.admin_ombors, name='admin_ombors'),
-    path('management/ombors/add/', views.admin_ombor_add, name='admin_ombor_add'),
-    path('management/ombors/<int:pk>/edit/', views.admin_ombor_edit, name='admin_ombor_edit'),
-    path('management/ombors/<int:pk>/delete/', views.admin_ombor_delete, name='admin_ombor_delete'),
 
     # 👤 Foydalanuvchilar boshqaruvi
     path('management/users/', views.admin_users, name='admin_users'),

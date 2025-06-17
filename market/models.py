@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-
-
 class Product(models.Model):
     barcode = models.CharField(max_length=100, unique=True)
     desc = models.TextField(blank=True, null=True)
@@ -52,3 +50,10 @@ class SaleItem(models.Model):
 
     def __str__(self):
         return f"{self.product.barcode} ({self.quantity} x {self.price})"
+
+def statistics_view(request):
+    products = Product.objects.all()
+    context = {
+        'products': products,
+    }
+    return render(request, 'statistics.html', context)
