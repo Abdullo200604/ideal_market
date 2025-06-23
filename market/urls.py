@@ -38,7 +38,6 @@ urlpatterns = [
     path('management/products/import/', views.management_product_import, name='management_product_import'),
     path('management/products/export/', views.management_product_export, name='management_product_export'),
 
-
     # 👤 Foydalanuvchilar boshqaruvi
     path('management/users/', views.admin_users, name='admin_users'),
     path('management/users/add/', views.admin_user_add, name='admin_user_add'),
@@ -57,6 +56,8 @@ urlpatterns = [
     path('management/sales/<int:sale_id>/delete/', views.admin_sale_delete, name='admin_sale_delete'),
 
     # Foydalanuvchi parolini o‘zgartirish
-    path('management/users/<int:user_id>/change_password/', views.admin_user_change_password, name='admin_user_change_password'),
+    path('management/users/<int:user_id>/change_password/', views.admin_user_change_password,
+         name='admin_user_change_password'),
+    path('cart/update-quantity/<int:product_id>/', views.cart_update_quantity, name='cart_update_quantity'),
 
 ]

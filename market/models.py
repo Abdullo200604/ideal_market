@@ -1,8 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import render
 from django.utils import timezone
 
+
 class Product(models.Model):
+    UNIT_CHOICES = [
+        ('kg', 'Kilogramm'),
+        ('pcs', 'Dona'),
+    ]
+
+    unit = models.CharField(max_length=3, choices=UNIT_CHOICES, default='kg', verbose_name="Birlik")
     barcode = models.CharField(max_length=100, unique=True)
     desc = models.TextField(blank=True, null=True)
     r_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Olish narxi")

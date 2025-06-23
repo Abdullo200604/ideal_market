@@ -1,59 +1,74 @@
-<div id="cart-area">
-    <h4>Savat (Chek)</h4>
-    <input type="text" id="cart-search" class="form-control mb-2" placeholder="Savatda qidiruv..." style="max-width:350px;">
-    <div class="cart-scroll-area" style="max-height:220px; overflow-y:auto;">
-        <table class="table table-bordered align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Mahsulot</th>
-                    <th>Miqdori</th>
-                    <th>Jami</th>
-                    <th>Harakatlar</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for item in cart_items %}
-                <tr class="cart-item-row">
-                    <td>{{ item.product.desc }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.item_total }}</td>
-                    <td>
-                        <!-- Qo‘shish (plus) -->
-                        <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="add">
-                            <button type="submit" class="btn btn-sm btn-success">+</button>
-                        </form>
-                        <!-- Ayirish (minus) -->
-                        <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-inline update-cart">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="remove">
-                            <button type="submit" class="btn btn-sm btn-warning">−</button>
-                        </form>
-                        <!-- O‘chirish (delete) -->
-                        <form method="post" action="{% url 'cart_remove' item.product.id %}" class="d-inline cart-remove-form">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">O‘chirish</button>
-                        </form>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted">Savat bo‘sh!</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <h5 class="mt-2"><strong>Umumiy summa:</strong> {{ total }}</h5>
-    <div class="mb-3">
-        <form id="cart-clear-form" method="post" action="{% url 'cart_clear' %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-secondary">Savatni tozalash</button>
-        </form>
-        <form id="cart-checkout-form" method="post" action="{% url 'cart_checkout' %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-success">Chekni yakunlash</button>
-        </form>
-    </div>
-</div>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <table class="table table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>Nomi</th>
+            <th>Miqdori</th>
+            <th>Birlik</th>
+            <th>Narxi</th>
+            <th>Jami</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in cart_items %}
+        <tr>
+            <td>{{ item.product.desc }}</td>
+            <td style="min-width: 90px;">
+                <form class="update-cart d-inline" method="post" action="{% url 'cart_update_quantity' item.product.id %}">
+                    {% csrf_token %}
+                    <input
+                        type="number"
+                        name="quantity"
+                        value="{{ item.quantity }}"
+                        class="form-control form-control-sm cart-qty-input"
+                        style="width: 75px; display: inline-block; text-align: center;"
+                        {% if item.product.unit == "kg" %}
+                            min="0.01" step="0.01"
+                        {% else %}
+                            min="1" step="1"
+                        {% endif %}
+                    >
+                </form>
+            </td>
+            <td>{{ item.product.get_unit_display }}</td>
+            <td>{{ item.product.s_price }}</td>
+            <td>{{ item.item_total }}</td>
+            <td>
+                <form class="cart-remove-form d-inline" method="post" action="{% url 'cart_remove' item.product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                </form>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">Savat bo‘sh</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4" class="text-end fw-bold">Umumiy</td>
+            <td colspan="2" class="fw-bold">{{ total }}</td>
+        </tr>
+    </tfoot>
+</table>
+<form id="cart-clear-form" method="post" action="{% url 'cart_clear' %}" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-secondary btn-sm">Savatni tozalash</button>
+</form>
+<form id="cart-checkout-form" method="post" action="{% url 'cart_checkout' %}" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-success btn-sm">Chekni yakunlash</button>
+</form>
+
+</body>
+</html>

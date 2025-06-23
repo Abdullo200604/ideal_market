@@ -89,7 +89,7 @@ def kassa(request):
     total = 0
     for product_id, quantity in cart.items():
         product = Product.objects.get(pk=product_id)
-        item_total = product.s_price * quantity
+        item_total = product.s_price * Decimal(str(quantity))
         total += item_total
         cart_items.append({
             'product': product,
@@ -103,23 +103,47 @@ def kassa(request):
         'query': query,
     })
 
+from decimal import Decimal
+
 def get_cart_items_and_total(request):
     cart = request.session.get('cart', {})
     items = []
-    total = 0
-    for pid, quantity in cart.items():
-        try:
-            product = Product.objects.get(id=pid)
-            item_total = product.s_price * quantity
-            items.append({
-                "product": product,
-                "quantity": quantity,
-                "item_total": item_total
-            })
-            total += item_total
-        except Product.DoesNotExist:
-            continue
+    total = Decimal('0')
+    for product_id, quantity in cart.items():
+        product = Product.objects.get(id=product_id)
+        # Muammoni shu yerda tuzating:
+        quantity_decimal = Decimal(str(quantity))
+        item_total = product.s_price * quantity_decimal
+        items.append({
+            'product': product,
+            'quantity': quantity,
+            'item_total': item_total,
+        })
+        total += item_total
     return items, total
+
+
+@csrf_exempt
+@login_required
+def cart_update_quantity(request, product_id):
+    if request.method == "POST":
+        cart = request.session.get('cart', {})
+        try:
+            new_qty = int(request.POST.get('quantity', 1))
+            if new_qty < 1:
+                return JsonResponse({'message': "Miqdor 1 dan kam bo‘lmasligi kerak"}, status=400)
+            cart[str(product_id)] = new_qty
+            request.session['cart'] = cart
+        except ValueError:
+            return JsonResponse({'message': "Noto‘g‘ri miqdor"}, status=400)
+        # Savatni qayta render qilish
+        cart_items, total = get_cart_items_and_total(request)
+        html = render_to_string('market/_cart_partial.html', {
+            'cart_items': cart_items,
+            'total': total,
+        }, request=request)
+        return JsonResponse({'cart_html': html, 'message': 'Savat yangilandi!'})
+    return JsonResponse({'message': "Noto'g'ri so‘rov"}, status=400)
 
 @csrf_exempt
 def cart_add_by_barcode(request):
@@ -722,5 +746,6 @@ def management_product_export(request):
     response['Content-Disposition'] = 'attachment; filename="products_export.json"'
     response.write(df.to_json(orient='records'))
     return response
+
 
 

@@ -1,20 +1,42 @@
-<div style="max-height: 350px; overflow-y: auto;">
-    <table class="table table-bordered align-middle" style="position: relative;">
-        <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
-            <tr>
-                <th>Nom</th>
-                <th>Barcode</th>
-                <th>Narxi</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.desc }}</td>
-                <td>{{ product.barcode }}</td>
-                <td>{{ product.s_price }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <table class="table table-sm table-hover">
+    <thead>
+        <tr>
+            <th>Nomi</th>
+            <th>Barcode</th>
+            <th>Narxi</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for product in products %}
+        <tr class="product-row" data-id="{{ product.id }}" style="cursor:pointer;">
+            <td>{{ product.desc }}</td>
+            <td>{{ product.barcode }}</td>
+            <td>{{ product.s_price }}</td>
+            <td>
+                <form class="cart-add-form d-inline" method="post" action="{% url 'cart_add' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-outline-success btn-sm" tabindex="-1">+</button>
+                </form>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="4" class="text-center text-muted">Mahsulot topilmadi</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

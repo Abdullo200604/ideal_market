@@ -1,7 +1,7 @@
 Django>=5.0
 djangorestframework
 psycopg2-binary
-pillow
+pillow0
 openpyxl
 django-import-export
 reportlab
